@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who Said It?</title>
+    <style>
+        body {
+            background-color: rgb(43, 43, 43);
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            color: white;
+        }
+        .quote-container {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .reveal-button {
+            margin-bottom: 30px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            color: black;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 200px;
+            margin-top: 20px;
+        }
+        .nav-buttons button {
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            color: black;
+        }
+        .author{
+            margin-bottom: 30px;
+            height: 40px;
+            
+        }
+    </style>
+</head>
+<body>
+    <div class="quote-container" id="quote">"This is a test quote."</div>
+    <div id="author" style="display: none; font-size: 1.2em; margin-bottom: 30px;" class="author">- Author</div>
+    <button class="reveal-button" id="reveal-btn" onclick="revealAuthor()">Reveal</button>
+    
+    <div class="quote-container" id="quote2">"This is a test quote."</div>
+    <div id="author2" style="display: none; font-size: 1.2em;">- Author</div>
+    <button class="reveal-button" id="reveal-btn2" onclick="revealAuthor2()">Reveal</button>
+
+    <div class="nav-buttons">
+        <button onclick="prevQuote()">Previous</button>
+        <button onclick="nextQuote()">Next</button>
+    </div>
+    <div class="programmers-comment" id="programmers-comment" style="margin-top: 30px;"></div>
+
+    <script>
+        // knapp 362 Zitate
+        const quotes = [
+            // Einfache Zitate
+            { text: "Ich würde nicht sagen, dass ich gekocht habe... Ich glaube ich werde gekocht!", author: "Ruben"},
+            { text: "Ich muss arbeiten wo ist mein Vodka?", author: "Atilla"},
+            { text: "Die Farbe, die du dir wünscht, ist mir nicht geläufig", author: "Chris"},
+            { text: "Er hat basically den Mario Barth gemacht nur sehr transphob.", author: "Atilla"},
+            { text: "Wo hast du eigentlich mein Handy hingefickt?", author: "Theresa"},
+            { text: "Der Hunger klopft.", author: "Chris"},
+            { text: "Ich liebe es, wenn Sachen tot sind!", author: "Atilla"},
+            { text: "Wenn ich Jordan noch mal in real life sehe gibts aber richtig auf die Fresse!", author: "Chris" },
+            { text: "Ah ihr kennt euch noch gar nicht. Das ist Daria, die Ex von Chris... UND Ben", author: "Benedikt" },
+            { text: "Und wie trinkste dein Bier, Flasche oder Bier?", author: "Janina" },
+            { text: "Zwei mal Eins ist auch Eins", author: "Chris" },
+            { text: "Ich habe ein Date mit Steuerbetrug", author: "Chris" },
+            { text: "Bist du behundert?", author: "Ruben"},
+            { text: "Aus der fick ich den erzkonservativen Wirtschaftsliberalismus so dermaßen raus, wenn ich mit der fertig bin, ist die Kommunistin.", author: "Ruben"},
+            { text: "Kochen, Klavier spielen und Tattoos stechen' das ist [sic!] schon mal drei Skills mehr als ich habe.", author: "Tom"},
+            { text: "4x3 ist auch 10", author: "Younes"},
+            { text: "Luna, würdest du heute bitte auf Suizid verzichten", author: "Chris"},
+            { text: "Ich glaub ich fick Luca jetzt so richtig.", author: "Benedikt"},
+            { text: "Was man nicht bezahlt für Sadie Waschbecken.", author: "Atilla"},
+            { text: "Der will mich! Der will mich HART!", author: "Janina"},
+            { text: "Das Näheste an nem Alpaka was ich habe ist Bülent von der Schlauchmontage.", author: "Ruben"},
+            { text: "Ich geb's dir gleich SO hart", author: "Janina"},
+            { text: "Der Song war so rassistisch, dass ich ihn actually witzig fand.", author: "Luca"},
+            { text: "Ich habe einen Cock gelaufen.", author: "Atilla"},
+            { text: "Wenn der Arsch wackelt, bin ich fröhlich.", author: "Ruben"},
+            { text: "Ich bin weit drin", author: "Janina"},
+            { text: "Du siehst unfassbar wie John Lennon... Bissl Albaner", author: "Atilla"},
+            { text: "Jetzt kommt Andrej wieder und sagt: Deswegen habe ich Linus!", author: "Younes"},
+            { text: "Die hat solche Dinger, die könnte ihre Brüste unter deinem Schreibtisch einklemmen und der Schreibtisch würde hochgehen wenn sie aufsteht.", author: "Ruben"},
+            { text: "Hessen ist nicht Thüringen.", author: "Janina"},
+            { text: "Die Pisse war noch n Proargument.", author: "Tom"},
+            { text: "Meiningsversterker.", author: "Chris"},
+            { text: "Ich hab gelacht weil Ich nicht weinen wollte", author: "Chris"},
+            { text: "Framstag bei Samstag.", author: "Chris"},
+            { text: "Scheiße, ich hab 9/11 verpasst!", author: "Atilla"},
+            { text: "Ich benutze meinen Zollstock nicht sehr oft", author: "Atilla"},
+            { text: "Was für eine Rasse ist das, männlich oder weiblich?", author: "Younes"},
+            { text: "Wenn ich gefickt werden will, gehe ich zu meiner Freundin.", author: "Luca"},
+            { text: "Und auch Luca hat Spaß an Rechtsextremismus.", author: "Tom"},
+            { text: "Komm in den Schaft", author: "Tom"},
+            { text: "Danke, dass du mich jetzt mit der AFD vergleichst. Ich fühle mich sehr wohl dabei []", author: "Benedikt"},
+            { text: "Ich hab den Asiaten in mir drin", author: "Atilla"},
+            { text: "Ich pack das in die 'Samenspende-Kiste'", author: "Benedikt"},
+            { text: "Ich bin Nackt, Hilfe! Ich kriege mein T-Shirt nicht mehr an!", author: "Younes", context: "😏"},
+            { text: "Formel 1 geht dir wirklich am Arsch egal, oder?", author: "Luca"},
+            { text: "NEN BIG MAC FÜRN EURO!?", author: "Atilla"},
+            { text: "Deine Mama ist 'n Wohnbereich.", author: "Luca"},
+            { text: "Nur häusliche Gewalt ist eine Einbahnstraße.", author: "Chris"},
+            { text: "Meine wahre Liebe ist [...] mich umzubringen oder umgebracht zu werden.", author: "Ruben"},
+            { text: "Nach Recklinghurensohn.", author: "Tom"},
+            { text: "Ich bin ein Rosinenbomber.", author: "Benedikt"},
+            { text: "Schildkröten, dass sind die grauen mit dem Rüssel, ne?", author: "Benedikt"},
+            { text: "Der Sound, wenn man Leute tötet ist echt toll", author: "Atilla"},
+            { text: "Luca, das Problem ist einfach, du bist Rassist.", author: "Ruben"},
+            { text: "Das wird der nächste Japaner den ich mir kaufe.", author: "Ruben"},
+            { text: "spawncampen... Auch n gutes Wort für pädophil.", author: "Benedikt"},
+            { text: "Ich hab zumindest noch'n bisschen Hoffnung, die Hoffnung stirbt zuletzt. Aber nach fünf Minuten stirbt sie.", author: "Atilla"},
+            { text: "Geduld ist die Mutter der Porzellankiste", author: "Benedikt"},
+            { text: "Ich hab Eier gelegt... vier Stück... gleichzeitig!", author: "Daria"},
+            { text: "Damit habe ich deine Oma gerade als Nazi und Kerl beleidigt!", author: "Benedikt"},
+            { text: "Ich hab das geerbt, ich kann da nix für.", author: "Chris"},
+            { text: "Ja, Inge, Hure.", author: "Atilla"},
+            { text: "Ich bin ein Tanklaster.", author: "Benedikt"},
+            { text: "Mein Teil dreht sich auch im Kreis [...]", author: "Atilla"},
+            { text: "Ich glaube, der IS hat es mir richtig angetan...", author: "Ruben"},
+            { text: "Ich bin harter Autist", author: "Atilla"},
+            { text: "jungewarumseidihrso, habtihrlackgesoffen, wasmachtihrda", author: "Chris"},
+            { text: "Ich habe gerade noch Fisch gefressen.", author: "Tom"},
+            { text: "Wo ist mein Geld hin?", author: "Ruben"},
+            { text: "Ein Schwanzbild hab ich von ihr noch nicht bekommen.", author: "Chris"},
+            { text: "Du könntest mich jederzeit so hart ficken.", author: "Younes"},
+            { text: "Ich glaub, es ist Zeit Hitlerdokus zu gucken.", author: "Benedikt", context: "Höchste Zeit.."},
+            { text: "Ich kann grade auch nicht, ich werde angeschissen", author: "Ruben"},
+            { text: "Ah, jetzt weiß ichs wieder.... KATZEN VERMEHREN!", author: "Benedikt"},
+            { text: "Wir sind auch harmonisch, wir sind einfach nur schwer gestört", author: "Tom"},
+            { text: "Wie heißt nochmal die Olle die den so geil fand? Ah, stimmt... Yannick", author: "Atilla"},
+            { text: "Ich habe auf mein Bett getropft... Jetzt riech ich wie 'n Alki.", author: "Atilla"},
+            { text: "ist genau das was ich gerne mag... klein... n bisschen kacke", author: "Ruben"},
+            { text: "Wenn wir das verlieren, werde ich mich heute Abend noch besaufen", author: "Benedikt", context: "mood"},
+            { text: "Oh mein Gott, ich hab ja mein Saufiticket.", author: "Benedikt"},
+            { text: "Bene und Menschen mit dunklem Hautton spielen hard mode.", author: "Luca"},
+            { text: "Tom hast du einen warmen Arsch!", author: "Ruben"},
+            { text: "Wir haben eine Spülmaschinenliste, weil meine Geschwister zu inkompetent sind alleine zu atmen!", author: "Chris"},
+            { text: "Ich hatte Heute Spaß mit dem Pferd", author: "Chris"},
+            { text: "Bene, ich hab ein Motorrad, ich brauch keine Freundin.", author: "Ruben"},
+            { text: "Wenn man kein Leben hat, dann heißt man Yannick.", author: "Younes"},
+            { text: "Das ist ne schlimme Dynamik in dem dreier Duo.", author: "Ruben"},
+            { text: "Dorfkinder sind anders, vor Allem wenn sie Mitte Fuffzich sind.", author: "Ruben"},
+            { text: "Komm lass mal das Kind treten.", author: "Yara"},
+            { text: "WiR mAcHeN nUr Ne GaNz KlEiNe...AU!!!", author: "Chris"},
+            { text: "Warum ist Ruben schwarz?", author: "Yara"},
+            { text: "Hurensohn! Deine Mutter fickt Pferde! Ich fahr hier mit 180 und du ziehst mit 100 raus!", author: "Atilla"},
+            { text: "Wir bauen Berge aus Leichen, dann können wir überall Ski fahren.", author: "Ruben"},
+            { text: "Die OG's sind katholisch.", author: "Benedikt"},
+            { text: "Leute mobben ist ja auch mein Hobby.", author: "Atilla"},
+            { text: "Nennen wir Ihn Jan Niklas, denn so war sein Name.", author: "Ruben"},
+            { text: "Hast du's denn auch auch richtig geschrieben gesagt?", author: "Tom"},
+            { text: "Alles Cannes nix muss.", author: "Atilla"},
+            { text: "Lolis sind Teil der japanischen Kultur.", author: "Younes"},
+            { text: "Guckt mal Leute wie toll ich hab Schluckauf.", author: "Yara"},
+            { text: "Die UDSSR bringt dir Glück.", author: "Atilla"},
+            { text: "Chris, du geistig behinderte Nudel, das ist ein Zitatechannel. Da kommen nur Zitate rein.", author: "Ruben"},
+            { text: "Was war noch mal Brokkoli in weiß? Ich weiß nicht wie das heißt.", author: "Younes"},
+            { text: "Tom, du könntest sehr gut fisten.", author: "Atilla"},
+            { text: "JETZT WIRD VERSTÄRKT.", author: "Janina"},
+            { text: "100 ist auch ne Zahl, ne... Dreistellig...", author: "Atilla"},
+            { text: "Der Transgender Thomas (h. Sylvia) ist mein Sklave der möchte das eigentlich nicht", author: "Younes"},
+            { text: "Ich fange mit Minecraft an und höre mit Softporn auf.", author: "Atilla"},
+            { text: "Warte mal ich hab 'nen Lümmel?", author: "Atilla"},
+            { text: "Echte Männer verhüten nicht. Echte Männer ficken mit unabgeputztem Arsch.", author: "Yara"},
+            { text: "Die werde ich hardcore vergewaltigen.", author: "Benedikt"},
+            { text: "Ich hatte mal 'n Nachbarn, der hat ne Kuh gefickt.", author: "Ninu", context: "L I N D E R H A U S E N   ~ Andrej "},
+            { text: "Also wir brauchen Ruben, weil der sieht aus wie ein Türke.", author: "Atilla"},
+            { text: "wenn du das zitierst schlitz ich dir die Reifen auf", author: "Ruben"},
+            { text: "Hatecrimes sind keine Einbahnstraße.", author: "Tom"},
+            { text: "Seine Mutter ist ja jetzt geistig gestört, jetzt braucht er ne andere.", author: "Atilla"},
+            { text: "Warum sind alle schwul?", author: "Atilla"},
+            { text: "Ich hab auf die alle gegeiert, aber das ist ja nebensächlich.", author: "Younes"},
+            { text: "Ich fick deinen auspuff (kalt) wenn du das zitierst.", author: "Ruben"},
+            { text: "Furries sind halt selten rechtsextrem, das macht sie prinzipiell sympathischer.", author: "Ruben"},
+            { text: "hehe Sex", author: "Atilla", context: "höhö"},
+            { text: "Ich hab versehentlich eine Muschi gemalt.", author: "Yara"},
+            { text: "irrelevant du objektifizierst Frauen immer", author: "Atilla"},
+            { text: "Das ist das Wochenende an dem [NAME REDACTED] so ein riesen tamam gemacht hat.", author: "Younes", context: "Zensur und so..."},
+            { text: "Ich mal dir nen richtig schönen Schwanz.", author: "Yara"},
+            { text: "Meine Katze ist geil auf mich.", author: "Younes"},
+            { text: "Ich bin gegen Frauen das ist ein Unterschied.", author: "Ruben"},
+            { text: "Tom? Willst du deine Mutter werden?", author: "Atilla"},
+            { text: "Ooh, Weiber mit Frauen.", author: "Ruben"},
+            { text: "Besser n crush auf Anarchie als n Date mit Steuerbetrug sag ich immer", author: "Tom"},
+            { text: "Brüste sind optional.", author: "Benedikt"},
+            { text: "Motorrad von Bifteki", author: "Tom"},
+            { text: "Oh ich muss noch Titten angucken warte.", author: "Atilla"},
+            { text: "So wer hat denn Lust auf mein Würstchen?", author: "Benedikt"},
+            { text: "Brauchst du nicht 'ne Pussy und 'n Cock?", author: "Luca"},
+            { text: "Piss mir ruhig öfter ans Bein, mittlerweile sieht man die Flecken auch nicht mehr.", author: "Tom"},
+            { text: "Ich will heulen... Ich will heulen... Ich will doch nicht heulen!", author: "Atilla"},
+            { text: "Es ist überall ein Cock, du musst ihn nur suchen.", author: "Ruben"},
+            { text: "Ahja, ich lackier mein Auto demnächst auch nach Sextoyfarben.", author: "Ruben"},
+            { text: "Prosecco ist übel gay.", author: "Benedikt"},
+            { text: "Riverdale ist alles.", author: "Tom"},
+            { text: "Die haben ein mal so den Pfosten massiert und das zwei Mal hintereinander.", author: "Chris"},
+            { text: "Bitte sag mir, dass du dabei nicht solche Geräusche machst. Ansonsten ist es okay, dass du dir da drauf einen keulst.", author: "Benedikt"},
+            { text: "Nur Fleisch macht Fleisch.", author: "Chris"},
+            { text: "Im großen und ganzen geht's immer um Würstchen", author: "Luca"},
+            { text: "Ja genau, auch nach rechts.", author: "Benedikt"},
+            { text: "Das horizontale Gewerbe ist inklusiv.", author: "Atilla"},
+            { text: "Die Autos sind alle Menschen und die Porsches sind alle queer", author: "Theresa"},
+            { text: "Ich versetze mich hier in die Position von Leuten, die gerne harten gay sex praktizieren möchten.", author: "Tom"},
+            { text: "Ich werde mir auch n großen Koffer mitnehmen und ich werde mir locker 4 oder 5 Unterhosen einpacken.", author: "Atilla"},
+            { text: "Ne, Ruben fickt sein Auto, das war mir bewusst, aber bei Yannick wär mir das neu.", author: "Atilla"},
+            { text: "Bene ist billig.", author: "Atilla", context: "In der Tat."},
+            { text: "Du kannst toxische Männlichkeit n bisschen besser als ich @Theresa.", author: "Benedikt"},
+            { text: "Ich schiebe alle Talente meiner Finger auf GeometryDash.", author: "Atilla"},
+            { text: "So richtig große, runde, fette Dinger!", author: "Theresa"},
+            { text: "Es ist keine Vergewaltigung, wenn wir beide weinen.", author: "Charly"},
+            { text: "Der erfüllt alles, was ein Mann sein sollte. Allen voran Sexismus.", author: "Ruben"},
+            { text: "wer braucht schon schwarz", author: "Atilla"},
+            { text: "Ich muss anfangen, 13 jährigen auf Snapchat zu schreiben.", author: "Benedikt"},
+            { text: "Ich vermiss sowas wie nachts ins Nachbardorf fahren und Leuten auf die Fresse hauen.", author: "Benedikt"},
+            { text: "Ja du bist halt aus dem Freundeskreis schon der, der gelegentlich Sachen anzündet.", author: "Tom"},
+            { text: "Wir nehmen Frankreich ein und erweitern das Deutschlandticket!", author: "Charly"},
+            { text: "Jetzt hab ich einen Rechtsradikalen auf meinen Socken.", author: "Tom"},
+            { text: "Achso, deswegen kenne ich den nicht, ich mag keine Frauen in der Hauptrolle", author: "Younes"},
+            { text: "Es ist ein Gatcha Game, aber mit Leichen", author: "Tom"},
+            { text: "Ich mag die am liebsten wenn die kalt und ein bisschen hart sind", author: "Ruben"},
+            { text: "Portugal ist ja quasi Spanien, das zählt nicht.", author: "Luca"},
+            { text: "Es gibt nichts männlicheres als sich einzukacken.", author: "Tom"},
+            { text: "Ja warte mal was ich mit Bene mache. Der wird sich wünschen er hätte einen Pfeil im Arsch", author: "Chris"},
+            { text: "Das tu ich auch, wenn ich zu heißes Essen trinke!", author: "Atilla"},
+            { text: "Warte, warte, dafür bin ich doch da............ Huuuuuure!!!", author: "Chris"},
+            { text: "Komm schieb ihn rein, schieb ihn rein. Ahhhhh", author: "Tom"},
+            { text: "0,75l ist 1l", author: "Luca", context: "Mathe ist Mathe lol"},
+            { text: "Ich hab mein Bein in der Tasche gelassen.", author: "Ninu"},
+            { text: "Das ist anders bei mir. Wenn ich mittlerweile Minecraft Musik höre muss ich aufs Klo", author: "Chris"},
+            { text: "Du kannst die Schafe auch einfach schälen.", author: "Benedikt"},
+            { text: "Du konntest mindestens so n Zoll Arsch sehen.", author: "Ruben"},
+            { text: "Ich bin wie Isaac Newton, aber mit Titten.", author: "Atilla"},
+            { text: "Welches Müsli soll ich nur zum Frühstück trinken?", author: "Chris"},
+            { text: "Mundwasser ist nicht das Gegenteil von Aftershave.", author: "Atilla"},
+            { text: "Ich hab dir heute mehrfach shameless auf die Titten geguckt. Es ist keine Sexuelle Belästigung wenn du es nicht merkst.", author: "Ruben"},
+            { text: "Dann bestellen wir mal den zweiten Band von den Steam-Punk-Titten.", author: "Ruben"},
+            { text: "Ich spiele das Spiel des Lebens gerade mit maximal 10 fps.", author: "Ruben"},
+            { text: "Doch, ich bin rassistisch gegenüber quadratischen Stühlen.", author: "Atilla"},
+            { text: "Die Mücke steht scheinbar auf Colgate.", author: "Tom"},
+            { text: "Das Kind hat Rassismus verstanden.", author: "Tom"},
+            { text: "Ich treibe gerade ab, merke ich", author: "Luisa"},
+            { text: "Wir hatten nämlich irgendwann langweilig..... ehm.... unzwar langweilig!", author: "Chris"},
+            { text: "Bin ich gay? Nein, Fabulous!", author: "Ruben"},
+            { text: "Ist kein Pyramidensystem, ich verkaufe nur Crack.", author: "Ruben"},
+            { text: "Ich mag einfach Fotze", author: "Luisa"},
+            { text: "Mit Kopf könnte ich auch leben", author: "Benedikt", context: "#FakeNews"},
+            { text: "Sie sind kacke. Problem: Abgeschoben!", author: "Theresa"},
+            { text: "Nur der gefickte ist schwul", author: "Theresa"},
+            { text: "Ist bei dir eigentlich irgendwas außerhalb deinem Lümmel lang?", author: "Charly"},
+            { text: "Das ist die einzige Art, wie man heutzutage noch ungefragt kleine Jungs glücklich machen darf!", author: "Ruben"},
+            { text: "Ich hab 'nen Kicker im Arsch.", author: "Tom"},
+            { text: "Ich bin nur Fan von Opfervereinen", author: "Luisa"},
+            { text: "Es hört sich so an, als ob ich leide, weil ich leide!", author: "Theresa"},
+            { text: "Weil Luca ist es wichtig gewesen, dass etwas weißes da drin ist, weil Luca ist WhiteSupremacist.", author: "Tom"},
+            { text: "Die haben jetzt so einen Kot-Spender an die Wiese gepackt", author: "Luisa"},
+            { text: "Also ich find Eier ja echt am besten", author: "Luisa"},
+            { text: "Ich hab nicht vor, mich in andere Körperteile zu verewigen.", author: "Ruben"},
+            { text: "Männliche Männer gucken sich keine Schwänze, das ist nämlich gay.", author: "Chris"},
+            { text: "Das meiste das mit 'Sieg' anfängt ist g....", author: "Tom", context: "O.o"},
+            { text: "ich fühle mich auf der rechten Seite wohler.", author: "Charly"},
+            { text: "Was ist'n das für ne Farbe? Leberwurst Metallic?", author: "Chris"},
+            { text: "Der Not-So-Friendly Spiderhood Neighbour-Man.", author: "Luca"},
+            { text: "Chris schmerzensgeldet sich hoch zur S-Klasse.", author: "Ruben"},
+            { text: "Du musst halt mal das ganze Spielfeld ausgetestet haben", author: "Atilla"},
+            { text: "Das ist doch keine Schnecke, man... Das hat Beine!!! Das ist ein Schwanz!", author: "Chris"},
+            { text: "Ich bin quasi Sub. Also in Australien.", author: "Benedikt"},
+            { text: "Ich bin nicht Auto rassistisch. Ich sag ja nicht das alle Autos scheiße sind, nur dass der Meriva scheiße ist. Das ist wie als würde ich sagen dass nicht alle Männer scheiße sind, sondern nur Pädophile.", author: "Charly"},
+            { text: "Ich weiß nicht mal wie mein Lümmel funktioniert.", author: "Ruben"},
+            { text: "Im Winter is' kalt, ich muss zum Arzt!", author: "Tom"},
+            { text: "So vor zwei Monaten hatte ich nur Audis, nackte Männer, nackte Frauen. Das war geil!", author: "Theresa"},
+            { text: "Ich muss Kim Jong-un töten und dann seine Schwester ficken.", author: "Ruben", context: "goals, ig"},
+            { text: "Das wäre cool, dann muss ich nicht mehr Senegalpiraterie betreiben.", author: "Luca"},
+            { text: "Blackfacen wir mich auch?", author: "Benedikt"},
+            { text: "Frauen haben die Fresse zu halten!", author: "Ruben", context: "So nämlich! -"},
+            { text: "Tom schnapp dir ein Tischbein, wir gehen Einbrecher kloppen", author: "Chris"},
+            { text: "Anna weg... Ich halte nix von Frauenrechten!", author: "Chris"},
+            { text: "Und ja, ich habe gerade die Bibel mir One Piece gleichgesetzt", author: "Benedikt"},
+            { text: "Friends only... Oder für die Leute, die das Spiel auf Deutsch stehen haben: 'Nur Franz.'", author: "Benedikt"},
+            { text: "Das ist der Kapitalismus der Romantik. Die, die haben, denen wird gegeben", author: "Benedikt"},
+            { text: "Wenn schon Scheiße, dann mit Schwung!", author: "Ruben"},
+            { text: "Ahh du magst die Playstation? Wie stehst'n du zu Frauenrechten?", author: "Chris"},
+            { text: "Das Schlimme daran ist nicht, dass er so schlecht pfeift. Das Schlimme ist, dass er dafür Geld bekommt, dass er so schlecht pfeift", author: "Luca"},
+            { text: "Ich hab Billie Eilish erschossen.", author: "Tom"},
+            { text: "Ey Fresse halten das ist besinnlich.", author: "Chris"},
+            { text: "Ob das jetzt gegen dich oder für die Nudeln spricht sei mal dahingestellt.", author: "Chris"},
+            { text: "Abstrakter Teig ist auch schöner Teig. Kein Teig-Shaming hier.", author: "Atilla"},
+            { text: "Manche verehren Gott, manche verehren die Schuldenbremse.", author: "Ninu"},
+            { text: "Ninu sieht nicht fröhlich aus dass die Mädels seine Dödel aufpumpen.", author: "Benedikt"},
+            { text: "Man will einfach auf die Bälle drücken damit das Ding hoch geht.", author: "Ninu"},
+            { text: "Ich hab ein 'S' wie 'SS'.", author: "Ninu"},
+            { text: "Ene Mene braune Affen, ich zerstöre Russland mit Nuklearwaffen. Hex hex!", author: "Tom", context: "✨"},
+            { text: "Ja, Klasse. Jetzt ist die Katze geil. Ja komm, kannst dich ficken gehen.", author: "Ruben"},
+            { text: "Das könnte sogar noch hinkommen, weil so viel wert ist Vietnam nicht.", author: "Atilla"},
+            { text: "Der Binnenhafen Gevelsberg-Mitte, wer kennt ihn nicht.", author: "Tom"},
+            { text: "Ich bin der UwU und ich bin auch dabei.", author: "Benedikt"},
+            { text: "Nö, Gleichberechtigung geht mir am Arsch vorbei.", author: "Chris"},
+            { text: "Das Dortmund-Trikot bleibt an beim Sex!", author: "Tom"},
+            { text: "Ja ich bleib respektvoll, ich werd sie nicht beleidigen, Hure.", author: "Chris"},
+            { text: "Haben die ihn aus der Sauna gefischt oder warum dampft der so?", author: "Chris"},
+            { text: "Du kleines  Konzentrationslager 🥰.", author: "Charly"},
+            { text: "Das Ding ist circa so agil wie ...der Mond.", author: "Benedikt"},
+            { text: "Ich hatte gehofft das Happy End wäre die Scheidung.", author: "Ninu"},
+            { text: "Vielleicht ist unser Glück vielleicht immer im Gleichgewicht. Du kriegst einen 250€ Skin und ich krieg Krebs.", author: "Atilla"},
+            { text: "Der Junge wechselt Frauen wie ich Unterwäsche... 1 Mal die Woche.", author: "Ruben"},
+            { text: "Jo Volumen hast du.", author: "Charly"},
+            { text: "Spätzle Döner sieht eigentlich geil aus.", author: "Daria"},
+            { text: "Der Dieseltruck ist das getötete Pferd!", author: "Theresa"},
+            { text: "Ey, diese Frau ist so hell, wie ne Tüte dunkel.", author: "Benedikt"},
+            { text: "Ich wollt spazieren gehen, jetzt werd ich wieder hackenstramm!", author: "Chris"},
+            { text: "Brüste sind auch eigentlich nur ein Problemfaktor für die Krankenkasse", author: "Benedikt"},
+            { text: "Man sollte generell keine Schulmädchen kaufen.", author: "Chris"},
+            { text: "Erst weiß, dann schwarz!", author: "Theresa"},
+            { text: "Ich hab auch mal einen schwarzen angebaut.", author: "Tom"},
+            { text: "Bei mir war irgendwie jeder drin.", author: "Atilla", context: "😏"},
+            { text: "Die bolonesische Partei Deutschlands.", author: "Tom"},
+            { text: "Deswegen blau.", author: "Chris"},
+            { text: "Skrillex ist mein Lieblingscharakter aus Korra.", author: "Tom"},
+            { text: "Warum können Hühner fliegen? Ich dachte die können nicht fliegen…", author: "Atilla"},
+            { text: "Wenn man sexistisch genug ist, ist alles irgendwann schwul.", author: "Ruben"},
+            { text: "Aber hast du mich auch so lieb, dass du 2h nach Leberkuchen... ehhhh....", author: "Luisa"},
+            { text: "Da oben steht einfach Ausländer raus.", author: "Luca"},
+            { text: "Ja Baymax würde ich auch bumsen, bin ich ehrlich", author: "Atilla"},
+            { text: "Ich kann nicht mehr, meine Mutter spielt wieder Querflöte. Es ist furchtbar, ich hasse das Instrument", author: "Benedikt"},
+            { text: "Bro du bist 10, nicht querschnittsgelähmt.", author: "Tom"},
+            { text: "Rollstuhl-Rugby ist quasi wie Auto-Scooter", author: "Benedikt"},
+            { text: "Wir sind im Partnerlook. Du hast Loch, ich hab Loch.", author: "Theresa"},
+            { text: "Sobald ich den ersten Franzosen auf dieser App sehe, wird die App gelöscht!", author: "Tom"},
+            { text: "Die Küchenrolle hat heute mehr geleistet als Dortmund.", author: "Luca"},
+            { text: "Du kommst nach Hause, warn harter Tag 'Halloo Rommel!'", author: "Chris"},
+            { text: "Ich würds nicht als Bi bezeichnen aber auf jeden Fall attraktiviert-", author: "Luisa"},
+            { text: "Ja, aber ihr seid ja zwei Frauen, das ist ja wieder heiß", author: "Benedikt"},
+            { text: "Einfach auf die eine Titte 2 Ds packen, so schwer isset nicht.", author: "Tom"},
+            { text: "Das ist schwul. Das mache ich nicht.", author: "Atilla"},
+            { text: "Warum war ihre Vagina und ihr Arschloch Franzosen?", author: "Tom"},
+            { text: "Den kannste echt verkaufen, schick den nach Uganda oder so!", author: "Chris"},
+            { text: "Eh, ich hab jetzt mit zwei Leuten geredet, kann jetzt jemand abgestochen werden?", author: "Tom"},
+            { text: "Die IQ-Zellen sinken pro Satz.", author: "Chris"},
+            { text: "Das Problem an Hitler war...", author: "Ruben", context: "... ..."},
+            { text: "Der wird die nächsten Tage nur RedBull husten.", author: "Chris"},
+            { text: "Reib das Ding, komm leck noch einmal drübba oah is dat schön.", author: "Tom"},
+            { text: "Sowas guckt der sich zum einschlafen an die perverse Sau.", author: "Chris"},
+            { text: "Diesmal hab ichs drinbehalten - diesmal habe ich nicht gespuckt", author: "Luca"},
+            { text: "Wenigstens ist er schwarz komplett!", author: "Theresa"},
+            { text: "Alt genug um meine Vorlieben zu kennen, Mutter.", author: "Tom"},
+            { text: "Tate McRay macht Leute für die selbst Wasser zu scharf ist", author: "Tom"},
+            { text: "Ich hab ihn mir größer vorgestellt 😕.", author: "Charly"},
+            { text: "Willst du meine Salami haben?", author: "Charly"},
+            { text: "Ich hab'n massives Alkoholproblem, keine Sorge.", author: "Atilla"},
+            { text: "Wenn man Capt'n Hook als Porno schreiben würde.. ich glaub das käm richtig gut, alter!", author: "Theresa"},
+            { text: "Ruben hat die langen Haare, Addi hat die Titten.", author: "Charly"},
+            { text: "Ich kann auch Objekte sexuell diskriminieren", author: "Ruben"},
+            { text: "Sprühschiss binnen zwei Minuten.", author: "Atilla"},
+            { text: "Das einzige was ich blowe ist 20 Zentimeter Schwwanz", author: "Atilla", context: ":O"},
+            { text: "Der Hund hat meine Wahlzettel gefressen.", author: "Luca"},
+            { text: "Ich seh aus wie Ben Bosshammer nur als Kennek.", author: "Atilla"},
+            { text: "Möchte ich Fußbilder von Luca? Jaaa! Her damit!", author: "Chris"},
+            { text: "Ich möchte noch mal betonen, ich habe keine Fußbilder bekommen, ich bin unfassbar traurig.", author: "Chris", context: ":("},
+            { text: "Sie hat ein hübsches Gesicht, wenn man auf Kinder steht", author: "Ruben"},
+            { text: "Er sieht auch aus, wie ich mir jeden einzelnen Italiener vorstelle, das meine ich so rassistisch wie ich's gesagt habe.", author: "Chris"},
+            { text: "Du siehst es wenn du es siehst.", author: "Chris", context: "0 = 0 ?"},
+            { text: "Boah alter, Zahnpasta Quadrat.", author: "Theresa"},
+            { text: "Wo kommt denn das Arschwasser her?", author: "Luisa"},
+            { text: "Was sind Nieren? Weg damit!", author: "Atilla", context: "!!!"},
+            { text: "Musste nur n bisschen warten, dann wird die Hintertür zur Raupe Nimmersatt", author: "Atilla"},
+            { text: "Ich bin morgens horny und dann bin ich traurig.", author: "Ruben"},
+
+            // Doppelte Zitate
+            { text1: "Hast du noch vor zu vögeln?", author: "Ruben", text2: "Heute nicht!", author2: "Ninu", context: "3==D ()"},
+            { text1: "kein bock mehr auf onlinedating sobald klausurenphase vorbei ist baller ich statt weiber wieder mit'm motorrad.", author: "Ruben", text2: "Die hat Augen?", author2: "Chris" },
+            { text1: "Für Geld prostituier ich mich auch für Langnese.", author: "Ruben", text2: "Ich auch.", author2: "Atilla"},
+            { text1: "Ich find die Hymne von früher toll.", author: "Chris", text2: "Das war lustig, weil die rassistisch ist.", author2: "Atilla"},
+            { text1: "Ich bin schwerer Alkoholiker [...]", author: "Atilla", text2: "Mhhhhhh", author2: "Chris"},
+            { text1: "Was soll das jetzt werden?", author: "Atilla", text2: "Sexuelle Belästigung.", author2: "Ruben"},
+            { text1: "Das spielt man mit Männern. Mit misogynen, sexistischen Wixern.", author: "Ruben", text2: "Du hast rassistisch vergessen.", author2: "Chris"},
+            { text1: "Stehst du auf Asiaten? Oder w...", author: "Ruben", text2: "GEIL!", author2: "Chris"},
+            { text1: "Um es kurz zu fassen, es ist ein sehr unangenehmer Schwulenporno.", author: "Atilla", text2: "höhöhöhöhöhöhö", author2: "Chris", context: "hehehe"},
+            { text1: "Fleischsalat ist auch einfach geil.", author: "Benedikt", text2: "Exsl95 lebt noch?", author2: "Benedikt"},
+            { text1: "Nur so zur Information, Anri ist zehn Jahre älter als Papa.", author: "Ruben", text2: "Hä, doppelter Smash!", author2: "Yara"},
+            { text1: "Ich halte den für dich", author: "Yara", text2: "Nein, ich will den selber halten!", author2: "Chris"},
+            { text1: "Na verlierst du gegen die Steckdose", author: "Ruben", text2: "Fick dich", author2: "Yara"},
+            { text1: "Ich glaube ich hätte echt gern den Metabolism von Marine.", author: "Atilla", text2: "Ich hätte gerne ihre Brüste.", author2: "Ruben"},
+            { text1: "Luca, wie stehst du zu Ausländern?", author: "Tom", text2: "Was?! RAUS!", author2: "Luca"},
+            { text1: "Ist dein Arschloch auch ein Achteck?", author: "Tom", text2: "Früher nicht.", author2: "Atilla"},
+            { text1: "wie heißt nochmal dieser eine Film mit der Welle?", author: "Atilla", text2: "Die Welle", author2: "Tom & Benedikt (gleichzeitig)"},
+            { text1: "Die hat 'n harten Haltungsschaden.", author: "Ruben", text2: "Geil!", author2: "Atilla"},
+            { text1: "Das ist seine Mutter.", author: "Ruben", text2: "Ist egal, Mutter ist Mutter.", author2: "Atilla"},
+            { text1: "Die haben eine Bürgermeisterin", author: "Benedikt", text2: "SCHEIẞE!", author2: "Chris"},
+            { text1: "Er muss jetzt erstmal aberegieren!", author: "Atilla", text2: "Er muss erstmal abeakulieren!", author2: "Tom"},
+            { text1: "Ich fummel kurz nochmal für meinem Cousin...", author: "Ruben", text2: "PUNKT", author2: "Atilla"},
+            { text1: "Leute, die 2006 geboren wurden, werden dieses Jahr 18.", author: "Ruben", text2: "Meine Geschwister werden dieses Jahr 18, vielleicht sind sie es schon, KEINE AHNUNG.", author2: "Chris"},
+            { text1: "Was ist denn GMN für'n Kennzeichen?", author: "Ruben", text2: "Guten Morgen!", author2: "Chris"},
+            { text1: "Dann habe ich mich mit meinem Mitbewohner in die Wohnung gelegt und wir haben uns nh Folge Bibi & Tina angemacht.", author: "Benedikt", text2: "Ich hab noch nach Pimmeln gesucht!", author2: "Benedikt"},
+            { text1: "Ich hab nichts gelernt außer Rassismus heute.", author: "Ruben", text2: "Und wir hatten Recht.", author2: "Tom"},
+            { text1: "Ich war um 10 Uhr schon lange nicht mehr so müde.", author: "Tom", text2: "Ich war um 10 Uhr schon lange nicht mehr so angenehm besoffen.", author2: "Ruben"},
+            { text1: "Wenn ich irgendwann im Lotto gewinne, werde ich Steffi Sesann abkaufen", author: "Luisa", text2: "Magst du Sesann überhaupt?", author2: "Luca"},
+            { text1: "Homophobie oder Rassismus?", author: "Theresa", text2: "Beides gut, beides gut.", author2: "Luca"},
+            { text1: "Ich könnte einen Binder tragen", author: "Theresa", text2: "Willst du mich verarschen?!", author2: "Benedikt"},
+            { text1: "Was für nen Rasenmäher habt ihr denn? Elektro?", author: "Benedikt", text2: "Ne, mit Verlängerungskabel!", author2: "Theresa"},
+            { text1: "Welches Land isst sehr viel Suppe?", author: "Atilla", text2: "Ananas!", author2: "Luca & Chris gleichzeitig"},
+            { text1: "Ich mag es, wenn du von dir selbst überzeugt bist", author: "Theresa", text2: "Ich auch", author2: "Benedikt"},
+            { text1: "Da war noch Schlotterbeck, der sieht aus wie Luca.", author: "Ruben", text2: "Smash!", author2: "Ninu"},
+            { text1: "Addi, ich glaube deine Freundin kriegt gerade einen Schlaganfall.", author: "Luca", text2: "Ich fick deine Mama!", author2: "Atilla"},
+            { text1: "Ich hab auch das Gefühl, die sehen auch alle son bisschen dümmlich aus.", author: "Chris", text2: "Das sind einfach Kroaten.", author2: "Luca"},
+            { text1: "Ich mag das Geräusch, wenn es so auf die Soße klatscht!", author: "Tom", text2: "That's what she said 😂", author2: "Daria"},
+            { text1: "Ich brauch noch n Glühwein.", author: "Tom", text2: "Ich auch.", author2: "Luca", context: "true that"},
+            { text1: "Ich hab mal das Fenster im Bad aufgemacht, weil ich hab die Chilisoße nicht vertragen hab und so…", author: "Ruben", text2: "Hättest du die nicht vielleicht auch zu Hause nicht vertragen können?", author2: "Chris"},
+            { text1: "Da hab ich mich jetzt aber verarscht", author: "Chris", text2: "Gechner", author2: "Tom"},
+            { text1: "Dari, könntest du bitte etwas freundlicher mit Chris sprechen?", author: "Benedikt", text2: "Ruhe Bene!", author2: "Chris"},
+            { text1: "Sagen wir: belästigen", author: "Tom", text2: "Ist das jetzt ein 'How-to'? Muss ich jetzt mitschreiben?", author2: "Chris"},
+            { text1: "Ich glaub, Sandy wählt die AfD.", author: "Chris", text2: "Also Gary wählt definitiv AfD.", author2: "Tom"},
+            { text1: "Merz ist fast 2m. Das ist ganz schön groß.", author: "Luca", text2: "Und das ohne Rückgrat.", author2: "Chris"},
+            { text1: "Diagonal zählt auch", author: "Ruben", text2: "Gilt auch schräg?", author2: "Chris"},
+            { text1: "Also meine komischen Leute sind offen rechtsradikal.", author: "Tom", text2: "Tschulligung", author2: "Chris"},
+            { text1: "Ich hab an Tentakel gedacht und Fisch. Also Thunfisch.", author: "Atilla", text2: "Ja weil sie was tun!", author2: "Janina"},
+            { text1: "Welche Ausfahrt?", author: "Ruben", text2: "Rechts!", author2: "Atilla"},
+            { text1: "Tom... Gib dir nen Ruck!", author: "Luca", text2: "Ich geb mir gleich die Kugel!", author2: "Tom"},
+        ];
+        let remainingQuotes = [...quotes];
+        let usedQuotes = [];
+        let currentQuote = {};
+
+        function getRandomQuote() {
+            if (remainingQuotes.length === 0) {
+                remainingQuotes = [...usedQuotes];
+                usedQuotes = [];
+            }
+            const randomIndex = Math.floor(Math.random() * remainingQuotes.length);
+            currentQuote = remainingQuotes.splice(randomIndex, 1)[0];
+            usedQuotes.push(currentQuote);
+            updateQuoteDisplay();
+        }
+
+        function updateQuoteDisplay() {
+            if (`${currentQuote.text}` != "undefined"){
+                document.getElementById("quote").innerText = `"${currentQuote.text}"`;
+                document.getElementById("quote2").style.display = "none";
+                document.getElementById("author").innerText = `- ${currentQuote.author}`;
+                document.getElementById("author").style.display = "none";
+                document.getElementById("author2").style.display = "none";
+                document.getElementById("reveal-btn").style.display = "inline-block";
+                document.getElementById("reveal-btn2").style.display = 'none';
+            } else if (`${currentQuote.text1}` != "undefined"){
+                document.getElementById("quote2").style.display = "inline-block"
+                document.getElementById("quote").innerText = `"${currentQuote.text1}"`;
+                document.getElementById("quote2").innerText = `"${currentQuote.text2}"`;
+                document.getElementById("author").innerText = `- ${currentQuote.author}`;
+                document.getElementById("author2").innerText = `- ${currentQuote.author2}`;
+                document.getElementById("author").style.display = "none";
+                document.getElementById("author2").style.display = "none";
+                document.getElementById("reveal-btn").style.display = "inline-block";
+                document.getElementById("reveal-btn2").style.display = "inline-block";
+            }
+        }
+
+        function revealAuthor() {
+            document.getElementById("author").style.display = "block";
+            document.getElementById("reveal-btn").style.display = "none";
+            if ("undefined" != `${currentQuote.context}`){
+                document.getElementById("programmers-comment").innerText = `programmer's comment: "${currentQuote.context}"`;
+            }
+        }
+        function revealAuthor2(){
+            document.getElementById("author2").style.display = "block";
+            document.getElementById("reveal-btn2").style.display = "none";
+        }
+
+        function prevQuote() {
+            if (usedQuotes.length > 1) {
+                remainingQuotes.unshift(usedQuotes.pop());
+                currentQuote = usedQuotes[usedQuotes.length - 1];
+                updateQuoteDisplay();
+            }
+        }
+
+        function nextQuote() {
+            getRandomQuote();
+            document.getElementById("author2").style.display = "none";
+            document.getElementById("programmers-comment").innerText = "";
+        }
+
+        getRandomQuote();
+    </script>
+</body>
+</html>
